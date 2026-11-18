@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light" data-font="sans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="漂流木、石頭、貝殼與各種撿拾物的收藏圖鑑">
+<title>拾物圖鑑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --accent:#222; --cols:2; --ratio:1/1; }
+  html[data-theme="light"]{ --bg:#ffffff; --surface:#f6f6f4; --ink:#1d1d1b; --muted:#8a8a85; --line:#e8e8e4; --on-accent:#fff; }
+  html[data-theme="warm"] { --bg:#f7f4ee; --surface:#efebe2; --ink:#2b2823; --muted:#8c857a; --line:#e3ddd1; --on-accent:#fff; }
+  html[data-theme="dark"] { --bg:#141414; --surface:#1f1f1f; --ink:#ededea; --muted:#8f8f8a; --line:#2c2c2c; --on-accent:#111; }
+  html[data-font="sans"] { --font:"Noto Sans TC",system-ui,sans-serif; --head:"Noto Sans TC",system-ui,sans-serif; --hw:500; }
+  html[data-font="serif"]{ --font:"Noto Sans TC",system-ui,sans-serif; --head:"Noto Serif TC",serif; --hw:600; }
+  html[data-font="kai"]  { --font:"LXGW WenKai TC",serif; --head:"LXGW WenKai TC",serif; --hw:700; }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;font-weight:400;transition:background .25s,color .25s}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:1160px;margin:0 auto;padding:40px 20px 120px}
+  .hidden{display:none!important}
+
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:34px}
+  header h1{font-family:var(--head);font-weight:var(--hw);font-size:30px;letter-spacing:.06em;margin:0;line-height:1.2}
+  header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .count{color:var(--muted);font-size:13px;margin-top:10px;letter-spacing:.04em}
+  .hbtns{display:flex;gap:6px;flex-shrink:0}
+  .ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+  .ghost:hover{color:var(--ink);border-color:var(--ink)}
+
+  .bar{display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--line);margin-bottom:28px}
+  .index{display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;flex:1}
+  .tab{background:none;border:none;padding:10px 0;cursor:pointer;white-space:nowrap;color:var(--muted);border-bottom:1.5px solid transparent;margin-bottom:-1px;font-size:15px}
+  .tab .c{font-size:11px;margin-left:3px;vertical-align:super}
+  .tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .tab.manage{font-size:13px}
+  .search{width:150px;padding:8px 0;border:none;background:transparent;outline:none;font-size:14px;text-align:right}
+  .search::placeholder{color:var(--muted)}
+  select.sort{border:none;background:transparent;color:var(--muted);font-size:13px;cursor:pointer}
+  @media(max-width:600px){ .bar{flex-wrap:wrap;gap:0} .index{flex-basis:100%} .search{flex:1;text-align:left} }
+  .notice{color:var(--muted);font-size:14px;margin:-12px 0 20px}
+
+  .grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:28px 14px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(calc(var(--cols) + 1),1fr);gap:40px 22px}}
+  @media(min-width:980px){.grid{grid-template-columns:repeat(calc(var(--cols) + 2),1fr)}}
+  .item{cursor:pointer}
+  .photo{aspect-ratio:var(--ratio);background:var(--surface);overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s,transform .6s}
+  .item:hover .photo img{transform:scale(1.02)}
+  .photo .none{color:var(--muted);font-size:12px}
+  .cap{padding-top:10px}
+  .cap h3{font-family:var(--head);font-weight:var(--hw);font-size:15px;margin:0;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cap small{display:flex;gap:8px;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden}
+  .cap small span:last-child{overflow:hidden;text-overflow:ellipsis}
+  html.nocap .cap{display:none}
+  html.nocap .grid{gap:6px}
+  .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .empty{text-align:center;padding:80px 20px;color:var(--muted);font-size:15px}
+
+  .fab{position:fixed;right:22px;bottom:24px;background:var(--accent);color:var(--on-accent);border:none;border-radius:999px;width:56px;height:56px;font-size:28px;font-weight:300;box-shadow:0 6px 20px rgba(0,0,0,.18);cursor:pointer;z-index:5;line-height:1}
+
+  /* sheets */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+  .sheet{background:var(--bg);width:100%;max-width:620px;max-height:94vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 22px 30px;animation:up .2s ease}
+  @media(min-width:700px){.overlay{align-items:center}.sheet{border-radius:12px}}
+  @keyframes up{from{transform:translateY(24px);opacity:.5}to{transform:none;opacity:1}}
+  .sheet-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .sheet-h h2{font-family:var(--head);font-weight:var(--hw);font-size:19px;margin:0}
+  .x{background:none;border:none;font-size:26px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 6px;font-weight:300}
+  label,.lbl{display:block;font-size:12px;color:var(--muted);margin:16px 0 6px;letter-spacing:.04em}
+  .in{width:100%;padding:10px 0;border:none;border-bottom:1px solid var(--line);background:transparent;outline:none;border-radius:0}
+  .in:focus{border-bottom-color:var(--ink)}
+  textarea.in{min-height:90px;resize:vertical;border:1px solid var(--line);padding:10px;border-radius:6px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 13px;cursor:pointer;font-size:14px}
+  .chip.on{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+  .chip.add{border-style:dashed;color:var(--muted)}
+  .inline{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .inline .in{flex:1}
+  .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
+  .ph{aspect-ratio:1;overflow:hidden;position:relative;background:var(--surface);border-radius:4px}
+  .ph img{width:100%;height:100%;object-fit:cover}
+  .ph button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;font-size:13px;line-height:1}
+  .ph .cover{position:absolute;left:4px;bottom:4px;font-size:10px;background:rgba(0,0,0,.55);color:#fff;padding:0 6px;border-radius:3px}
+  .ph.loading{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
+  .addph{aspect-ratio:1;border:1px dashed var(--muted);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;font-size:22px;font-weight:300;background:none}
+  .btns{display:flex;gap:10px;margin-top:24px}
+  .btn{flex:1;padding:11px;border-radius:999px;border:1px solid var(--line);background:none;cursor:pointer;font-size:15px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  .btn.small{flex:0 0 auto;padding:7px 16px;font-size:14px}
+  .btn.danger{color:#c0392b}
+  .btn:disabled{opacity:.5}
+  .err{color:#c0392b;font-size:14px;margin-top:10px}
+  .hint{font-size:13px;color:var(--muted);margin:2px 0 8px}
+
+  /* settings */
+  .seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+  .seg button{flex:1;border:none;background:none;padding:7px 4px;border-radius:999px;cursor:pointer;font-size:14px;color:var(--muted)}
+  .seg button.on{background:var(--ink);color:var(--bg)}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--bg);outline:1px solid var(--line);cursor:pointer}
+  .sw.on{outline:2px solid var(--ink)}
+  .toggle{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:15px}
+  .switch{width:44px;height:26px;border-radius:999px;background:var(--line);border:none;position:relative;cursor:pointer;transition:background .2s}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .switch.on{background:var(--accent)} .switch.on::after{left:21px}
+
+  /* category manager */
+  .mgr-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .mgr-row .in{flex:1;border:none}
+  .mgr-row .cnt{font-size:12px;color:var(--muted);white-space:nowrap}
+  .cdot{width:16px;height:16px;border-radius:50%;border:none;cursor:pointer;flex:0 0 auto}
+  .icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 6px}
+  .confirm{background:var(--surface);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:14px}
+
+  /* detail */
+  .hero{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:var(--surface);margin:0 -22px}
+  .hero img{flex:0 0 100%;max-height:60vh;object-fit:contain;scroll-snap-align:center}
+  .dots{text-align:center;font-size:12px;color:var(--muted);padding-top:8px}
+  .d-title{font-family:var(--head);font-weight:var(--hw);font-size:24px;margin:18px 0 2px;line-height:1.3}
+  .d-sub{color:var(--muted);font-size:13px}
+  .fields{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;margin:20px 0 0}
+  .fields dt{font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .fields dd{margin:0;font-size:15px;overflow-wrap:anywhere}
+  .notes{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);white-space:pre-wrap;line-height:1.85;font-size:15px}
+  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="siteTitle">拾物圖鑑</h1>
+      <p id="siteSub" class="hidden"></p>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="hbtns"><button class="ghost hidden" id="styleBtn">外觀</button><button class="ghost" id="authBtn">登入</button></div>
+  </header>
+
+  <div class="bar">
+    <nav id="index" class="index"></nav>
+    <input id="q" class="search" type="search" placeholder="搜尋">
+    <select id="sort" class="sort" aria-label="排序">
+      <option value="num">編號</option>
+      <option value="date">日期</option>
+      <option value="size">尺寸</option>
+      <option value="name">名稱</option>
+    </select>
+  </div>
+  <div id="notice" class="notice">載入中…</div>
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty hidden"></div>
+</div>
+
+<button id="fab" class="fab hidden" aria-label="新增">＋</button>
+
+<!-- Item form -->
+<div id="formOv" class="overlay hidden">
+  <form id="form" class="sheet" autocomplete="off">
+    <div class="sheet-h"><h2 id="formTitle">新增</h2><button type="button" class="x" data-close="formOv">×</button></div>
+
+    <div class="lbl">照片（第一張是封面）</div>
+    <div id="photos" class="photos"></div>
+    <input id="file" type="file" accept="image/*" multiple class="hidden">
+
+    <label for="fName">名稱</label>
+    <input id="fName" class="in" required>
+
+    <div class="lbl">分類</div>
+    <div id="fCats" class="chips"></div>
+    <div id="newCatBox" class="inline hidden">
+      <input id="newCatName" class="in" placeholder="新分類名稱" maxlength="20">
+      <button type="button" class="btn small primary" id="newCatOk">加入</button>
+    </div>
+
+    <label for="fNotes">備註</label>
+    <textarea id="fNotes" class="in" placeholder="想記下的任何事：怎麼發現的、當天的天氣、之後想拿來做什麼…"></textarea>
+
+    <div class="row">
+      <div><label for="fDate">撿拾日期</label><input id="fDate" type="date" class="in"></div>
+      <div><label for="fPlace">地點</label><input id="fPlace" class="in" list="placeList"><datalist id="placeList"></datalist></div>
+    </div>
+
+    <label for="fKind">種類／材質</label>
+    <input id="fKind" class="in" list="kindList"><datalist id="kindList"></datalist>
+
+    <div class="lbl">尺寸（公分）</div>
+    <div class="row3">
+      <input id="fL" class="in" type="number" step="0.1" min="0" inputmode="decimal" placeholder="長">
+      <input id="fW" class="in" type="number" step="0.1" min="0" inputmode="decimal" placeholder="寬">
+      <input id="fH" class="in" type="number" step="0.1" min="0" inputmode="decimal" placeholder="高">
+    </div>
+
+    <div class="row">
+      <div><label for="fWeight">重量（公克）</label><input id="fWeight" class="in" type="number" min="0" step="0.1" inputmode="decimal"></div>
+      <div><label for="fTags">標籤</label><input id="fTags" class="in" placeholder="空格分隔"></div>
+    </div>
+
+
+    <div id="formErr" class="err hidden"></div>
+    <div class="btns">
+      <button type="button" class="btn" data-close="formOv">取消</button>
+      <button type="submit" id="saveBtn" class="btn primary">儲存</button>
+    </div>
+  </form>
+</div>
+
+<!-- Appearance -->
+<div id="styleOv" class="overlay hidden">
+  <div class="sheet">
+    <div class="sheet-h"><h2>外觀</h2><button type="button" class="x" data-close="styleOv">×</button></div>
+    <p class="hint">改了會立刻套用並自動儲存。</p>
+
+    <label for="sTitle">網站標題</label>
+    <input id="sTitle" class="in" maxlength="30">
+    <label for="sSub">副標題（可留空）</label>
+    <input id="sSub" class="in" maxlength="60">
+
+    <div class="lbl">背景</div>
+    <div class="seg" data-key="theme"><button data-v="light">白</button><button data-v="warm">米白</button><button data-v="dark">深色</button></div>
+
+    <div class="lbl">字體</div>
+    <div class="seg" data-key="font"><button data-v="sans">黑體</button><button data-v="serif">明體標題</button><button data-v="kai">楷體</button></div>
+
+    <div class="lbl">重點色</div>
+    <div class="swatches" id="accentSw"></div>
+
+    <div class="lbl">照片比例</div>
+    <div class="seg" data-key="ratio"><button data-v="1/1">正方</button><button data-v="4/5">直式 4:5</button><button data-v="3/4">直式 3:4</button><button data-v="4/3">橫式</button></div>
+
+    <div class="lbl">手機每排幾張</div>
+    <div class="seg" data-key="cols"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button></div>
+
+    <div class="toggle"><span>顯示名稱和地點</span><button class="switch" id="capSwitch" aria-label="顯示文字"></button></div>
+    <div class="toggle"><span>顯示分類色點</span><button class="switch" id="dotSwitch" aria-label="顯示分類色點"></button></div>
+
+    <div class="btns"><button class="btn" id="resetStyle">恢復預設</button><button class="btn primary" data-close="styleOv">完成</button></div>
+  </div>
+</div>
+
+<!-- Category manager -->
+<div id="mgrOv" class="overlay hidden">
+  <div class="sheet">
+    <div class="sheet-h"><h2>分類</h2><button type="button" class="x" data-close="mgrOv">×</button></div>
+    <p class="hint">直接改名字即可儲存。刪除分類不會刪掉裡面的東西，會移到「未分類」。</p>
+    <div id="mgrList"></div>
+    <div class="inline" style="margin-top:14px">
+      <input id="mgrNew" class="in" placeholder="新增分類" maxlength="20">
+      <button type="button" class="btn small primary" id="mgrAdd">新增</button>
+    </div>
+    <div id="mgrErr" class="err hidden"></div>
+  </div>
+</div>
+
+<!-- Login -->
+<div id="loginOv" class="overlay hidden">
+  <form id="loginForm" class="sheet" autocomplete="on">
+    <div class="sheet-h"><h2>登入</h2><button type="button" class="x" data-close="loginOv">×</button></div>
+    <p class="hint">登入後才能新增和編輯，訪客只能瀏覽。</p>
+    <label for="lEmail">Email</label>
+    <input id="lEmail" class="in" type="email" autocomplete="username" required>
+    <label for="lPass">密碼</label>
+    <input id="lPass" class="in" type="password" autocomplete="current-password" required>
+    <div id="loginErr" class="err hidden"></div>
+    <div class="btns"><button type="button" class="btn" data-close="loginOv">取消</button><button type="submit" class="btn primary" id="loginBtn">登入</button></div>
+  </form>
+</div>
+
+<!-- Detail -->
+<div id="detOv" class="overlay hidden"><div class="sheet" id="det"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
