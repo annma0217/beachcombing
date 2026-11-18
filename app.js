@@ -229,7 +229,7 @@ $("mgrNew").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefau
 function openDetail(id){
   const i=items.find(x=>x.id===id); if(!i) return;
   const c=catById(i.categoryId), photos=i.photos||[];
-  const rows=[["分類",c?.name||"未分類"],["撿拾日期",fmtDate(i.date)],["地點",i.place],["種類／材質",i.kind],
+  const rows=[["分類",c?.name||"未分類"],["撿拾日期",fmtDate(i.date)||"無"],["地點",i.place],["種類／材質",i.kind],
     ["尺寸",sizeOf(i)?sizeOf(i)+" cm":""],["重量",i.weight!==""&&i.weight!=null?i.weight+" g":""]].filter(r=>r[1]);
   $("det").innerHTML=`
     <div class="sheet-h"><span class="d-sub">${numLabel(i)}</span><button class="x" data-close="detOv">×</button></div>
@@ -281,7 +281,10 @@ function openForm(item){
   $("formTitle").textContent=item?`編輯 ${numLabel(item)}`:"新增";
   formCat=item?item.categoryId:(tab!=="__all"?tab:"");
   $("fName").value=item?.name||"";
-  $("fDate").value=item?.date||new Date().toLocaleDateString("sv");
+  const noDate = !!item && !item.date;
+  $("fNoDate").checked = noDate;
+  $("fDate").disabled = noDate;
+  $("fDate").value = noDate ? "" : (item?.date||new Date().toLocaleDateString("sv"));
   $("fPlace").value=item?.place||"";
   $("fKind").value=item?.kind||"";
   $("fL").value=item?.l??""; $("fW").value=item?.w??""; $("fH").value=item?.h??"";
@@ -340,7 +343,7 @@ $("form").addEventListener("submit", async e=>{
   const num=v=>v===""?"":Number(v);
   const data={
     num:editing?editing.num:Math.max(0,...items.map(i=>i.num||0))+1,
-    categoryId:formCat, name:$("fName").value.trim(), date:$("fDate").value, place:$("fPlace").value.trim(),
+    categoryId:formCat, name:$("fName").value.trim(), date:$("fNoDate").checked?"":$("fDate").value, place:$("fPlace").value.trim(),
     kind:$("fKind").value.trim(), l:num($("fL").value), w:num($("fW").value), h:num($("fH").value),
     weight:num($("fWeight").value),
     tags:$("fTags").value.split(/[,，、\s]+/).map(t=>t.replace(/^#/,"").trim()).filter(Boolean),
@@ -361,6 +364,11 @@ $("form").addEventListener("submit", async e=>{
   }catch(err){
     errBox.textContent="儲存失敗："+errMsg(err); errBox.classList.remove("hidden");
   }finally{ $("saveBtn").disabled=false; }
+});
+$("fNoDate").addEventListener("change", e=>{
+  $("fDate").disabled = e.target.checked;
+  if(e.target.checked) $("fDate").value="";
+  else if(!$("fDate").value) $("fDate").value=new Date().toLocaleDateString("sv");
 });
 $("fab").addEventListener("click", ()=>openForm(null));
 

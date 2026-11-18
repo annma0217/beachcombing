@@ -74,6 +74,9 @@
   .in:focus{border-bottom-color:var(--ink)}
   textarea.in{min-height:90px;resize:vertical;border:1px solid var(--line);padding:10px;border-radius:6px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .check{display:flex;align-items:center;gap:6px;margin:8px 0 0;font-size:13px;color:var(--muted);cursor:pointer;letter-spacing:0}
+  .check input{width:16px;height:16px;accent-color:var(--accent);margin:0}
+  .in:disabled{opacity:.35}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
   .chips{display:flex;gap:6px;flex-wrap:wrap}
   .chip{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 13px;cursor:pointer;font-size:14px}
@@ -181,7 +184,8 @@
     <textarea id="fNotes" class="in" placeholder="想記下的任何事：怎麼發現的、當天的天氣、之後想拿來做什麼…"></textarea>
 
     <div class="row">
-      <div><label for="fDate">撿拾日期</label><input id="fDate" type="date" class="in"></div>
+      <div><label for="fDate">撿拾日期</label><input id="fDate" type="date" class="in">
+        <label class="check"><input type="checkbox" id="fNoDate"> 無撿拾日期</label></div>
       <div><label for="fPlace">地點</label><input id="fPlace" class="in" list="placeList"><datalist id="placeList"></datalist></div>
     </div>
 
