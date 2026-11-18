@@ -2,5 +2,5 @@
 // 這兩個值放在公開網頁上是安全的，真正的權限由資料庫的規則（RLS）控管。
 window.SITE_CONFIG = {
   SUPABASE_URL: "https://rjpdodfegnjyxlfjrtei.supabase.co",
-  SUPABASE_KEY: "YOUR_PUBLISHABLE_OR_ANON_KEY"
+  SUPABASE_KEY: "sb_publishable_5S2G-5o-d2srobLtKu8o3Q_FEE50ss8"
 };
