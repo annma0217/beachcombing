@@ -8,6 +8,7 @@ const cfg = window.SITE_CONFIG || {};
 const configured = cfg.SUPABASE_URL && cfg.SUPABASE_KEY && !cfg.SUPABASE_URL.includes("YOUR_");
 const sb = configured ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY) : null;
 
+let viewIds=[], currentId=null;
 let canWrite=false, items=[], cats=[], style={...DEFAULT_STYLE};
 let tab="__all", editing=null, formCat="", formPhotos=[], uploading=0;
 const $ = id => document.getElementById(id);
@@ -113,6 +114,7 @@ function render(){
     return a.num-b.num;
   });
   const showDot = style.dots!==false;
+  viewIds = list.map(i=>i.id);
   $("grid").innerHTML=list.map(i=>{
     const p=(i.photos||[])[0], c=catById(i.categoryId);
     return `<article class="item" data-id="${esc(i.id)}">
@@ -226,13 +228,29 @@ $("mgrAdd").addEventListener("click", mgrAdd);
 $("mgrNew").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); mgrAdd(); } });
 
 /* ---------- detail ---------- */
+function stepDetail(dir){
+  if(!currentId || viewIds.length<2) return;
+  const ix=viewIds.indexOf(currentId); if(ix<0) return;
+  openDetail(viewIds[(ix+dir+viewIds.length)%viewIds.length]);
+  $("det").scrollTop=0;
+}
+document.addEventListener("keydown", e=>{
+  if($("detOv").classList.contains("hidden")) return;
+  if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)) return;
+  if(e.key==="ArrowRight"){ e.preventDefault(); stepDetail(1); }
+  else if(e.key==="ArrowLeft"){ e.preventDefault(); stepDetail(-1); }
+  else if(e.key==="Escape"){ close("detOv"); }
+});
 function openDetail(id){
   const i=items.find(x=>x.id===id); if(!i) return;
+  currentId=id;
+  const pos=viewIds.indexOf(id), total=viewIds.length;
+  const nav = total>1 && pos>=0 ? `<div class="dnav"><button class="navb" data-step="-1" aria-label="上一件">‹</button><span>${pos+1} / ${total}</span><button class="navb" data-step="1" aria-label="下一件">›</button></div>` : "";
   const c=catById(i.categoryId), photos=i.photos||[];
   const rows=[["分類",c?.name||"未分類"],["撿拾日期",fmtDate(i.date)||"無"],["地點",i.place],["種類／材質",i.kind],
     ["尺寸",sizeOf(i)?sizeOf(i)+" cm":""],["重量",i.weight!==""&&i.weight!=null?i.weight+" g":""]].filter(r=>r[1]);
   $("det").innerHTML=`
-    <div class="sheet-h"><span class="d-sub">${numLabel(i)}</span><button class="x" data-close="detOv">×</button></div>
+    <div class="sheet-h"><span class="d-sub">${numLabel(i)}</span>${nav}<button class="x" data-close="detOv">×</button></div>
     ${photos.length?`<div class="hero" id="hero">${photos.map(p=>`<img src="${esc(photoUrl(p))}" alt="">`).join("")}</div>
       ${photos.length>1?`<div class="dots" id="dots">1 / ${photos.length}</div>`:""}`:""}
     <div class="d-title">${esc(i.name||"未命名")}</div>
@@ -241,6 +259,7 @@ function openDetail(id){
     ${i.notes?`<div class="notes"><div style="font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px">備註</div>${esc(i.notes)}</div>`:""}
     ${canWrite?`<div class="btns"><button class="btn danger" id="delBtn">刪除</button><button class="btn primary" id="editBtn">編輯</button></div><div id="delBox"></div>`:""}`;
   open("detOv");
+  $("det").querySelectorAll("[data-step]").forEach(b=>b.onclick=()=>stepDetail(Number(b.dataset.step)));
   const hero=$("hero");
   if(hero&&photos.length>1) hero.addEventListener("scroll",()=>{ $("dots").textContent=`${Math.round(hero.scrollLeft/hero.clientWidth)+1} / ${photos.length}`; });
   if(!canWrite) return;
